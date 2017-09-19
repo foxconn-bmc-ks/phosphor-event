@@ -1,5 +1,7 @@
+#include <fstream>
 #include <iostream>
 #include <stdlib.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include "event_messaged_sdbus.h"
 
@@ -8,11 +10,26 @@ using namespace std;
 static const char *LOCK_PATH = "/var/lib/obmc/events.lock";
 static const char *LOG_DIR_PATH = "/var/lib/obmc/events";
 static const char *METADATA_PATH = "/var/lib/obmc/events.metadata";
+static const char *PID_PATH = "/run/obmc-phosphor-event.pid";
 
 static void print_usage (void)
 {
     cerr << "[-s <x>] : Maximum bytes to use for event logger" << endl;
     cerr << "[-t <x>] : Maximum number of logs" << endl;
+}
+
+static void save_pid (void)
+{
+    pid_t pid;
+    ofstream f;
+    pid = getpid();
+    f.open(PID_PATH);
+    if (!f) {
+        cerr << "DEBUG: failed to open pidfile" << endl;
+        return;
+    }
+    f << pid << endl;
+    f.close();
 }
 
 int main (int argc, char *argv[])
@@ -37,6 +54,7 @@ int main (int argc, char *argv[])
                 return 1;
         }
     }
+    save_pid();
     EventManager em(LOG_DIR_PATH, LOCK_PATH, METADATA_PATH, max_logs, max_size);
     if ((err = bus_build(&em)) == 0) {
         bus_mainloop();
