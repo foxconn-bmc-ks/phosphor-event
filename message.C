@@ -203,12 +203,13 @@ uint16_t EventManager::autofill_log (Log* log)
         return 0;
     }
     if (LOG_CREATED_MAX_LENGTH <= snprintf(log->created,
-                LOG_CREATED_MAX_LENGTH, "%04d-%02d-%02dT%02d:%02d",
+                LOG_CREATED_MAX_LENGTH, "%04d-%02d-%02dT%02d:%02d:%02d",
                 tm->tm_year + 1900,
                 tm->tm_mon + 1,
                 tm->tm_mday,
                 tm->tm_hour,
-                tm->tm_min)) {
+                tm->tm_min,
+                tm->tm_sec)) {
         cerr << "DEBUG: failed to autofill log: created" << endl;
         return 0;
     }
